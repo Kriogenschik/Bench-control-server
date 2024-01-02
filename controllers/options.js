@@ -1,21 +1,21 @@
 const fs = require("fs");
 
 const getOptionsHandler = (req, res) => {
-  fs.readFile("./data.json", (err, data) => {
+  fs.readFile("./data/options.json", (err, data) => {
     if (err) {
       console.log(err);
     } else {
-      res.send(JSON.parse(data).options);
+      res.send(JSON.parse(data));
     }
   });
 };
 
 const getSingleOptionHandler = (req, res) => {
-  fs.readFile("./data.json", (err, data) => {
+  fs.readFile("./data/options.json", (err, data) => {
     if (err) {
       console.log(err);
     } else {
-      const result = JSON.parse(data).options;
+      const result = JSON.parse(data);
       const option = result.filter((s) => s.id.toString() === req.params.optionId);
       res.send(option);
     }

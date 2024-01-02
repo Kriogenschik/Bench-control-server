@@ -1,28 +1,31 @@
 const fs = require("fs");
 
 const getStaffsHandler = (req, res) => {
-  fs.readFile("./data.json", (err, data) => {
+  fs.readFile("./data/staff.json", (err, data) => {
     if (err) {
       console.log(err);
     } else {
-      res.send(JSON.parse(data).staffs);
+      res.send(JSON.parse(data));
     }
   });
 };
 
 const getSingleStaffHandler = (req, res) => {
-  fs.readFile("./data.json", (err, data) => {
+  fs.readFile("./data/staff.json", (err, data) => {
     if (err) {
       console.log(err);
     } else {
-      const result = JSON.parse(data).staffs;
+      const result = JSON.parse(data);
       const staff = result.filter((s) => s.id.toString() === req.params.staffId);
       res.send(staff);
     }
   });
 };
 
-const postStaffHandler = (req, res) => res.send("Post Staff route");
+const postStaffHandler = (req, res) => {
+  console.log(req.body);
+  res.send("staff is added");
+}
 
 const deleteStaffHandler = (req, res) => res.send("Delete Staff route");
 

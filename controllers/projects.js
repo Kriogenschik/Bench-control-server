@@ -1,21 +1,21 @@
 const fs = require("fs");
 
 const getProjectsHandler = (req, res) => {
-  fs.readFile("./data.json", (err, data) => {
+  fs.readFile("./data/projects.json", (err, data) => {
     if (err) {
       console.log(err);
     } else {
-      res.send(JSON.parse(data).projects);
+      res.send(JSON.parse(data));
     }
   });
 };
 
 const getSingleProjectHandler = (req, res) => {
-  fs.readFile("./data.json", (err, data) => {
+  fs.readFile("./data/projects.json", (err, data) => {
     if (err) {
       console.log(err);
     } else {
-      const result = JSON.parse(data).projects;
+      const result = JSON.parse(data);
       const project = result.filter((s) => s.id.toString() === req.params.projectId);
       res.send(project);
     }
