@@ -22,13 +22,29 @@ const getSingleOptionHandler = (req, res) => {
   });
 };
 
-const postOptionHandler = (req, res) => res.send("Post Option route");
-
-const updateOptionHandler = (req, res) => res.send("Update Staff route");
+const updateOptionHandler = (req, res) => {
+  fs.readFile("./data/options.json", (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      const result = JSON.parse(data);
+      const newOptionsList = result.map(option => {
+        if (option.id.toString() === req.params.optionId) {
+          return {...option, arr: req.body.arr};
+        } else return option;
+      })
+      fs.writeFile("./data/options.json", JSON.stringify(newOptionsList), (err) => {
+        if (err) console.log(err);
+        else {
+          res.send(req.body);
+        }
+      });
+    }
+  });
+};
 
 module.exports = {
   getOptionsHandler,
   getSingleOptionHandler,
-  postOptionHandler,
   updateOptionHandler
 };
