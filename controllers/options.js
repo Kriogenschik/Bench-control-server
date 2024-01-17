@@ -1,13 +1,36 @@
 const fs = require("fs");
+const {db} = require("../firebase");
 
-const getOptionsHandler = (req, res) => {
-  fs.readFile("./data/options.json", (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.send(JSON.parse(data));
-    }
-  });
+// const getOptionsHandler = (req, res) => {
+//   fs.readFile("./data/options.json", (err, data) => {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       res.send(JSON.parse(data));
+//     }
+//   });
+// };
+
+const getOptionsHandler = async (req, res) => {
+  try {
+    const optionsRef = db.collection("options");
+    const response = await optionsRef.get();
+    let responseArr = [];
+    response.forEach(doc => {
+      // console.log(doc.data().collection('arr').get());
+
+      responseArr.push({...doc.data(), id: doc.id});
+    });
+    const opt = db.collection("options").doc("IakwNMr6edWbbCsM4AQ2").collection("arr");
+    const optresponse = await opt.get();
+    optresponse.forEach(doc => {
+      console.log(doc.data());
+    })
+    
+    res.send(responseArr);
+  } catch (error) {
+    res.send(error);
+  }
 };
 
 const getSingleOptionHandler = (req, res) => {

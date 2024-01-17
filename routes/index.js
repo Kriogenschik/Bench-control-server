@@ -1,11 +1,13 @@
 const express = require("express");
 const staffsRouter = require("./staffs");
+const authRouter = require("./auth");
 const optionsRouter = require("./options");
 const projectsRouter = require("./projects");
 const rootRouter = require("./root");
 
 const router = express.Router();
 
+router.use("/auth", authRouter);
 router.use("/staffs", staffsRouter);
 router.use("/options", optionsRouter);
 router.use("/projects", projectsRouter);
