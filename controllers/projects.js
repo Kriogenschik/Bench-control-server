@@ -1,86 +1,61 @@
-const fs = require("fs");
-const { randomUUID } = require("crypto");
+const { db } = require("../firebase");
 
-const getProjectsHandler = (req, res) => {
-  fs.readFile("./data/projects.json", (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.send(JSON.parse(data));
-    }
-  });
+const getProjectsHandler = async (req, res) => {
+  try {
+    const response = await db.collection("projects").get();
+    let responseArr = [];
+    response.forEach(doc => {
+      responseArr.push({...doc.data(), id: doc.id});
+    });
+    res.send(responseArr);
+  } catch (error) {
+    res.send(error);
+  }
 };
 
-const getSingleProjectHandler = (req, res) => {
-  fs.readFile("./data/projects.json", (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      const result = JSON.parse(data);
-      const project = result.filter((s) => s.id.toString() === req.params.projectId);
-      res.send(project);
-    }
-  });
+const getSingleProjectHandler = async (req, res) => {
+  try {
+    const response = await db.collection("projects").doc(req.params.staffId).get();
+    res.send({ ...response.data(), id: response.id });
+  } catch (error) {
+    res.send(error);
+  }
 };
 
-const postProjectHandler = (req, res) => {
-  const newProject = { ...req.body, id: randomUUID() };
-  fs.readFile("./data/projects.json", (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      const result = JSON.parse(data);
-      result.push(newProject);
-      fs.writeFile("./data/projects.json", JSON.stringify(result), (err) => {
-        if (err) console.log(err);
-        else {
-          res.send(newProject);
-        }
+const postProjectHandler = async (req, res) => {
+  try {
+    const newProject = req.body;
+
+    const response = await db.collection("projects").add(newProject);
+    res.send({ ...newProject, id: response.id });
+  } catch (error) {
+    res.send(error);
+  }
+};
+
+const deleteProjectHandler = async (req, res) => {
+  try {
+    const response = await db.collection("projects").doc(req.params.projectId).delete();
+    res.send(response);
+  } catch (error) {
+    res.send(error);
+  }
+}
+
+const updateProjectHandler = async (req, res) => {
+  try {
+    const updatedProject = req.body;
+    delete updatedProject.id;
+    const projectRef = await db
+      .collection("projects")
+      .doc(req.params.projectId)
+      .update({
+        ...updatedProject,
       });
-    }
-  });
-};
-
-const deleteProjectHandler = (req, res) => {
-  fs.readFile("./data/projects.json", (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      const result = JSON.parse(data);
-      const newProjectList = result.filter(project => {
-        if (project.id.toString() === req.params.projectId) {
-          return
-        } else return project;
-      })
-      fs.writeFile("./data/projects.json", JSON.stringify(newProjectList), (err) => {
-        if (err) console.log(err);
-        else {
-          res.send({message: "Project deleted"});
-        }
-      });
-    }
-  });
-};
-
-const updateProjectHandler = (req, res) => {
-  fs.readFile("./data/projects.json", (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      const result = JSON.parse(data);
-      const newProjectList = result.map(project => {
-        if (project.id.toString() === req.params.projectId) {
-          return req.body;
-        } else return project;
-      })
-      fs.writeFile("./data/projects.json", JSON.stringify(newProjectList), (err) => {
-        if (err) console.log(err);
-        else {
-          res.send(req.body);
-        }
-      });
-    }
-  });
+    res.send(projectRef);
+  } catch (error) {
+    res.send(error);
+  }
 };
 
 module.exports = {
