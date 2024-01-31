@@ -1,45 +1,50 @@
-const passport = require('passport');
-const jwt = require('jsonwebtoken');
-const config = require('../config/db');
-const User = require("../models/user");
+const { initializeApp } = require("firebase/app");
+const { getFirestore, doc, getDoc } = require("firebase/firestore");
+const {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+} = require("firebase/auth");
 
-const getAuthHandler = (req, res) => {
-  const login = req.body.login;
-  const password = req.body.password;
+const firebaseConfig = {
+  apiKey: "AIzaSyCZGQrN55ui0815u5wCejdnHVLC_U930HY",
+  authDomain: "bench-control.firebaseapp.com",
+  projectId: "bench-control",
+  storageBucket: "bench-control.appspot.com",
+  messagingSenderId: "329438605538",
+  appId: "1:329438605538:web:c63d745b1b09cc9fa9eebb",
+  measurementId: "G-FX9ME2NR5T",
+};
 
-  User.getUserByLogin(login, (err, user) => {
-    if (err) throw err;
-    if(!user) {
-      return res.json({success: false, msg: "User was not found..."});
-    }
-    User.comparePass(password, user.password, (err, isMatch) => {
-    if (err) throw err;
-      if(isMatch) {
-        const token = jwt.sign(user, config.secret, {
-          expiresIn: 3600
-        });
+initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
 
-        res.json({
-          success: true,
-          token: "JWT" + token,
-          user: {
-            id: user._id,
-            login: user.login
-          }
-        })
-      } else 
-      return res.json({success: false, msg: "Wrong Password"});
-    });
-  })
-  // fs.readFile("./data/staff.json", (err, data) => {
-  //   if (err) {
-  //     console.log(err);
-  //   } else {
-  //     res.send(JSON.parse(data));
-  //   }
-  // });
+const handleSignIn = async (req, res) => {
+  try {
+    const userResponse = await signInWithEmailAndPassword(
+      auth,
+      req.body.name,
+      req.body.password
+    );
+    const userData = await doc(db, `users/${userResponse.user.uid}`);
+    const user = await getDoc(userData);
+    res.json(user.data());
+  } catch (error) {
+    res.send(error);
+  }
+};
+
+const handleSingOut = async (req, res) => {
+  try {
+    await signOut(auth);
+    res.send({ mes: "sign out" });
+  } catch (error) {
+    res.send(error);
+  }
 };
 
 module.exports = {
-  getAuthHandler,
+  handleSignIn,
+  handleSingOut,
 };

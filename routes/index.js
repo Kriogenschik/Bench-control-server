@@ -7,7 +7,7 @@ const rootRouter = require("./root");
 
 const router = express.Router();
 
-router.use("/auth", authRouter);
+router.use("/login", authRouter);
 router.use("/staffs", staffsRouter);
 router.use("/options", optionsRouter);
 router.use("/projects", projectsRouter);
