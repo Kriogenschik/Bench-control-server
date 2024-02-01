@@ -1,10 +1,5 @@
 const { initializeApp } = require("firebase/app");
 const { getFirestore, doc, getDoc } = require("firebase/firestore");
-const {
-  getAuth,
-  signInWithEmailAndPassword,
-  signOut,
-} = require("firebase/auth");
 
 const firebaseConfig = {
   apiKey: "AIzaSyCZGQrN55ui0815u5wCejdnHVLC_U930HY",
@@ -17,17 +12,11 @@ const firebaseConfig = {
 };
 
 initializeApp(firebaseConfig);
-const auth = getAuth();
 const db = getFirestore();
 
 const handleSignIn = async (req, res) => {
   try {
-    const userResponse = await signInWithEmailAndPassword(
-      auth,
-      req.body.name,
-      req.body.password
-    );
-    const userData = await doc(db, `users/${userResponse.user.uid}`);
+    const userData = await doc(db, `users/${req.params.userId}`);
     const user = await getDoc(userData);
     res.json(user.data());
   } catch (error) {
@@ -35,16 +24,6 @@ const handleSignIn = async (req, res) => {
   }
 };
 
-const handleSingOut = async (req, res) => {
-  try {
-    await signOut(auth);
-    res.send({ mes: "sign out" });
-  } catch (error) {
-    res.send(error);
-  }
-};
-
 module.exports = {
   handleSignIn,
-  handleSingOut,
 };
