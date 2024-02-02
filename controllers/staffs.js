@@ -1,10 +1,13 @@
-const { db } = require("../firebase");
+const {db} = require("../firebase.config");
+const { doc, getDoc, getDocs, addDoc, deleteDoc, setDoc, collection } = require("firebase/firestore");
+
 
 const getStaffsHandler = async (req, res) => {
   try {
-    const response = await db.collection("staff").get();
     let responseArr = [];
-    response.forEach((doc) => {
+    const staffsRef = collection(db, `staff`);
+    const staffsSnapshot = await getDocs(staffsRef);
+    staffsSnapshot.forEach((doc) => {
       responseArr.push({ ...doc.data(), id: doc.id });
     });
     res.send(responseArr);
@@ -15,8 +18,9 @@ const getStaffsHandler = async (req, res) => {
 
 const getSingleStaffHandler = async (req, res) => {
   try {
-    const response = await db.collection("staff").doc(req.params.staffId).get();
-    res.send({ ...response.data(), id: response.id });
+    const staffRef = doc(db, `staff/${req.params.staffId}`);
+    const staff = await getDoc(staffRef);
+    res.send({ ...staff.data(), id: staff.id });
   } catch (error) {
     res.send(error);
   }
@@ -25,7 +29,7 @@ const getSingleStaffHandler = async (req, res) => {
 const postStaffHandler = async (req, res) => {
   try {
     const newStaff = req.body;
-    const response = await db.collection("staff").add(newStaff);
+    const response = await addDoc(collection(db, "staff"), newStaff);
     res.send({ ...newStaff, id: response.id });
   } catch (error) {
     res.send(error);
@@ -34,11 +38,8 @@ const postStaffHandler = async (req, res) => {
 
 const deleteStaffHandler = async (req, res) => {
   try {
-    const response = await db
-      .collection("staff")
-      .doc(req.params.staffId)
-      .delete();
-    res.send(response);
+    await deleteDoc(doc(db, 'staff', req.params.staffId));
+    res.send({message: "staff was deleted"});
   } catch (error) {
     res.send(error);
   }
@@ -47,15 +48,10 @@ const deleteStaffHandler = async (req, res) => {
 const updateStaffHandler = async (req, res) => {
   try {
     const updatedStaff = req.body;
-    
     delete updatedStaff.id;
-    console.log(updatedStaff);
-    const staffRef = await db
-      .collection("staff")
-      .doc(req.params.staffId)
-      .update({
-        ...updatedStaff,
-      });
+    
+    const staffRef = doc(db, `staff/${req.params.staffId}`);
+    setDoc(staffRef, updatedStaff);
     res.send(staffRef);
   } catch (error) {
     res.send(error);

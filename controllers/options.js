@@ -1,4 +1,6 @@
-const { db } = require("../firebase");
+// const { db } = require("../firebase");
+const {db} = require("../firebase.config");
+const { doc, getDoc, getDocs, deleteDoc, setDoc, collection } = require("firebase/firestore");
 
 // For options with sub-collections in firebase
 //=======================================================================
@@ -94,10 +96,11 @@ const { db } = require("../firebase");
 //========================================================================
 const getOptionsHandler = async (req, res) => {
   try {
-    const response = await db.collection("options").get();
     let responseArr = [];
-    response.forEach(doc => {
-      responseArr.push({...doc.data(), id: doc.id});
+    const optionsRef = collection(db, `options`);
+    const optionsSnapshot = await getDocs(optionsRef);
+    optionsSnapshot.forEach((doc) => {
+      responseArr.push({ ...doc.data(), id: doc.id });
     });
     res.send(responseArr);
   } catch (error) {
@@ -107,8 +110,9 @@ const getOptionsHandler = async (req, res) => {
 
 const getSingleOptionHandler = async (req, res) => {
   try {
-    const response = await db.collection("options").doc(req.params.optionId).get();
-    res.send({ ...response.data(), id: response.id });
+    const optionRef = doc(db, `options/${req.params.optionId}`);
+    const option = await getDoc(optionRef);
+    res.send({ ...option.data(), id: option.id });
   } catch (error) {
     res.send(error);
   }
@@ -116,8 +120,8 @@ const getSingleOptionHandler = async (req, res) => {
 
 const deleteOptionHandler = async (req, res) => {
   try {
-    const response = await db.collection("options").doc(req.params.optionId).delete();
-    res.send(response);
+    await deleteDoc(doc(db, 'options', req.params.optionId));
+    res.send({message: "option was deleted"});
   } catch (error) {
     res.send(error);
   }
@@ -126,16 +130,10 @@ const deleteOptionHandler = async (req, res) => {
 const updateOptionHandler = async (req, res) => {
   try {
     const updatedOptions = req.body;
-    console.log(updatedOptions);
-    console.log();
     delete updatedOptions.id;
     
-    const optionsRef = await db
-      .collection("options")
-      .doc(req.params.optionId)
-      .update({
-        ...updatedOptions,
-      });
+    const optionsRef = doc(db, `options/${req.params.optionId}`);
+    setDoc(optionsRef, updatedOptions, { merge: true });
     res.send(optionsRef);
   } catch (error) {
     res.send(error);
