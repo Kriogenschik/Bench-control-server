@@ -1,4 +1,6 @@
 const express = require("express");
+const middleware = require('../middleware/index');
+
 const {
   getStaffsHandler,
   getSingleStaffHandler,
@@ -10,9 +12,9 @@ const {
 const router = express.Router();
 
 router.get("/", getStaffsHandler );
-router.post("/", postStaffHandler);
+router.post("/", middleware.checkIsAdmin(), postStaffHandler);
 router.get("/:staffId", getSingleStaffHandler);
-router.delete("/:staffId", deleteStaffHandler);
-router.patch("/:staffId", updateStaffHandler);
+router.delete("/:staffId", middleware.checkIsAdmin(), deleteStaffHandler);
+router.patch("/:staffId", middleware.checkIsAdmin(), updateStaffHandler);
 
 module.exports = router;
