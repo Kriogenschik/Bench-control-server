@@ -1,5 +1,5 @@
 const express = require("express");
-const staffsRouter = require("./staffs");
+const staffRouter = require("./staff");
 const authRouter = require("./auth");
 const optionsRouter = require("./options");
 const projectsRouter = require("./projects");
@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.use("/auth", authRouter);
 router.use("/testauth", testAuthRouter);
-router.use("/staffs", staffsRouter);
+router.use("/staff", staffRouter);
 router.use("/options", optionsRouter);
 router.use("/projects", projectsRouter);
 router.use("/", rootRouter);

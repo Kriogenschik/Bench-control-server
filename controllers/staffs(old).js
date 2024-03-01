@@ -1,7 +1,6 @@
 const {db} = require("../firebase.config");
 const { doc, getDoc, getDocs, addDoc, deleteDoc, setDoc, collection } = require("firebase/firestore");
 
-
 const getStaffsHandler = async (req, res) => {
   try {
     let responseArr = [];
