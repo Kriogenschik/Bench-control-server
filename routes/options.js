@@ -6,6 +6,7 @@ const {
   getSingleOptionHandler,
   deleteOptionHandler,
   addNewOptionHandler,
+  updateOptionHandler
 } = require("../controllers/options");
 
 const router = express.Router();
@@ -16,5 +17,7 @@ router.get("/:optionId", getSingleOptionHandler);
 router.delete("/:optionId", deleteOptionHandler);
 // router.patch("/:optionId", middleware.checkIsAdmin(), updateOptionHandler);
 router.post("/:optionId", addNewOptionHandler);
+router.put("/:optionId", updateOptionHandler);
+
 
 module.exports = router;
